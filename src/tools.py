@@ -11,7 +11,7 @@ logger = logging.getLogger(__name__)
 def convert_currency(amount: float, from_currency: str, to_currency: str, date: str = "latest") -> str:
     """
     Converts a specific numerical amount from one currency to another using historical or current exchange rates.
-    Use this tool WHENEVER the user asks about currency conversion, exchange rates, 
+    Use this tool whenever the user asks about currency conversion, exchange rates, 
     or calculating travel expenses in a different currency.
     
     Args:
@@ -27,20 +27,21 @@ def convert_currency(amount: float, from_currency: str, to_currency: str, date: 
     # Clean and normalize input parameters
     try:
         amount = float(amount)
-        from_currency = str(from_currency).upper().strip()
-        to_currency = str(to_currency).upper().strip()
-        date = str(date).strip().lower()
-        
-        # Validate date format if it's not 'latest'
-        if date != "latest":
-            datetime.strptime(date, "%Y-%m-%d")
-            
     except ValueError as e:
-        if "time data" in str(e):
-            logger.error("Invalid date format provided by agent: %s", date)
-            return "Error: Invalid date format. Please provide the date in YYYY-MM-DD format."
-        logger.error("Invalid data types provided for currency conversion: amount=%s", amount)
-        return "Error: Please provide a valid numerical amount for conversion."
+        logger.error("Invalid amount provided: %s. Error: %s", amount, e)
+        return f"Error: Please provide a valid numerical amount for conversion. Details: {e}"
+
+    from_currency = str(from_currency).upper().strip()
+    to_currency = str(to_currency).upper().strip()
+    date = str(date).strip().lower()
+    
+    # Validate date format if it's not 'latest'
+    if date != "latest":
+        try:
+            datetime.strptime(date, "%Y-%m-%d")
+        except ValueError as e:
+            logger.error("Invalid date format provided: %s. Error: %s", date, e)
+            return f"Error: Invalid date format. Please provide the date in YYYY-MM-DD format. Details: {e}"
 
     logger.info("Currency conversion requested: %f %s to %s for date: %s", amount, from_currency, to_currency, date)
     
