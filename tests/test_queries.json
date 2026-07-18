@@ -1,0 +1,42 @@
+[
+  {
+    "id": "TC-001",
+    "category": "policy",
+    "description": "Basic RAG Retrieval: Querying standard travel policy limits.",
+    "input": "What is the maximum allowance for a hotel stay per night in Paris?",
+    "expected_routing": "policy_node",
+    "expected_tools_used": ["policy_search_tool"]
+  },
+  {
+    "id": "TC-002",
+    "category": "finance",
+    "description": "Basic Tool Usage: Current currency exchange rate.",
+    "input": "I need to exchange money. How much is 150 USD in EUR today?",
+    "expected_routing": "finance_node",
+    "expected_tools_used": ["convert_currency"]
+  },
+  {
+    "id": "TC-003",
+    "category": "finance_historical",
+    "description": "Parameterized Tool Usage: Historical exchange rate with explicit date extraction.",
+    "input": "I am submitting an old expense report. Convert 500 GBP to JPY based on the exchange rate from 2023-11-15.",
+    "expected_routing": "finance_node",
+    "expected_tools_used": ["convert_currency"]
+  },
+  {
+    "id": "TC-004",
+    "category": "complex_reasoning",
+    "description": "Multi-Tool Complex Task: RAG retrieval followed by currency conversion.",
+    "input": "What is my daily meal allowance for a trip to Berlin, and how much is that in USD?",
+    "expected_routing": "policy_node",
+    "expected_tools_used": ["policy_search_tool", "convert_currency"]
+  },
+  {
+    "id": "TC-005",
+    "category": "general",
+    "description": "Guardrail and Router Check: Out-of-scope query handling.",
+    "input": "Hi! Can you write a Python script for me to automate my emails?",
+    "expected_routing": "general_node",
+    "expected_tools_used": []
+  }
+]

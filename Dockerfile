@@ -1,6 +1,6 @@
 FROM python:3.12-slim
 
-# Install system dependencies (needed for compiling certain C++ libraries if required by Chroma/pypdf)
+# Install system dependencies 
 RUN apt-get update && apt-get install -y --no-install-recommends \
     build-essential \
     && rm -rf /var/lib/apt/lists/*
@@ -18,5 +18,4 @@ ENV PYTHONPATH="/app"
 
 EXPOSE 8501
 
-# Default command (will be overridden in docker-compose for the database test)
 CMD ["streamlit", "run", "src/app.py", "--server.port=8501", "--server.address=0.0.0.0"]
