@@ -110,7 +110,7 @@ def quality_check_node(state: AssistantState) -> AssistantState:
 def audit_log_node(state: AssistantState) -> AssistantState:
     """Node 5: Finalizes the transaction and saves metadata."""
     logger.info("[Main Graph] Node 5: Saving Audit Log...")
-    logger.info("Transaction Category: %s | Compliance Approved: %s", state.get("category"), state.get("is_approved"))
+    logger.info("Transaction Category: %s | Compliance Approved: %s", state.get("categories"), state.get("is_approved"))
     return {"audit_status": "Completed"}
 
 def route_after_reasoning(state: AssistantState) -> str:
