@@ -19,7 +19,7 @@ class AppConfig:
     RETRIEVER_K = int(os.getenv("RETRIEVER_K", "3"))
 
     # LLM Configuration
-    LLM_MODEL_NAME: str = os.getenv("LLM_MODEL_NAME", "llama3.1:8b")
+    LLM_MODEL_NAME: str = os.getenv("LLM_MODEL_NAME", "llama3.2:3b")
     OLLAMA_BASE_URL: str = os.getenv("OLLAMA_BASE_URL", "http://localhost:11434")
     
     # Frankfurter API Settings
