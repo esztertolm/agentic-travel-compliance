@@ -75,21 +75,43 @@ if prompt_text:
         st.markdown(prompt_text)
 
     with st.chat_message("assistant"):
-        with st.spinner("Thinking and consulting policies..."):
-            try:
-                inputs = {"messages": [HumanMessage(content=prompt_text)]}
-                
-                config = {"configurable": {"thread_id": st.session_state.thread_id}}
-                
-                response = AGENT.invoke(inputs, config=config)
-                
-                final_message = response["messages"][-1].content
-                
-                st.markdown(final_message)
-                
-                st.session_state.messages.append({"role": "assistant", "content": final_message})
-                
-            except Exception as e:
-                error_msg = f"**Error executing graph:** {str(e)}"
-                st.error(error_msg)
-                st.session_state.messages.append({"role": "assistant", "content": error_msg})
+        try:
+            inputs = {"messages": [HumanMessage(content=prompt_text)]}
+            
+            config = {"configurable": {"thread_id": st.session_state.thread_id}}
+            
+            # Agent status indicator
+            status = st.status("Agent is analyzing the request...", expanded=True)
+            
+            final_message = ""
+            
+            # Stream the graph execution to show intermediate steps
+            for event in AGENT.stream(inputs, config=config):
+                for node_name, state_update in event.items():
+                    status.write(f"**Step completed:** `{node_name}`")
+                    
+                    if node_name == 'action_node':
+                        tool_name = "Unknown Tool"
+                        if "messages" in state_update and state_update["messages"]:
+                            last_msg = state_update["messages"][-1]
+                            # If it's a ToolMessage, LangChain stores the tool name in the .name attribute
+                            if hasattr(last_msg, "name") and last_msg.name:
+                                tool_name = last_msg.name
+                        
+                        with status.expander(f"🛠️ Tool executed: `{tool_name}`"):
+                            st.write(f"The agent dynamically selected and executed the `{tool_name}` tool.")
+                    
+                    # Extract the latest message
+                    if "messages" in state_update:
+                        final_message = state_update["messages"][-1].content
+            
+            # Close the status box when done
+            status.update(label="Response generated!", state="complete", expanded=False)
+            
+            st.markdown(final_message)
+            st.session_state.messages.append({"role": "assistant", "content": final_message})
+            
+        except Exception as e:
+            error_msg = f"**Error executing graph:** {str(e)}"
+            st.error(error_msg)
+            st.session_state.messages.append({"role": "assistant", "content": error_msg})
