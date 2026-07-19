@@ -208,6 +208,12 @@ From the observed behavior, the system performs well on straightforward retrieva
 
 The load-test script in [tests/load_tests.py](tests/load_tests.py) was executed with 50 sequential requests to emulate a realistic burst of repeated user activity. The results indicate that the system can complete the workload successfully, but it does so with relatively high latency.
 
+The command to run the load test after the docker containers are ready:
+
+```bash
+docker-compose exec app python tests/load_tests.py
+```
+
 Observed metrics:
 
 - Total requests: 50
