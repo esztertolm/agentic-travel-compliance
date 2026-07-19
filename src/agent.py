@@ -6,14 +6,12 @@ from langgraph.prebuilt import ToolNode
 from langgraph.checkpoint.memory import MemorySaver
 
 from pydantic import BaseModel, Field
-from langchain_core.output_parsers import PydanticOutputParser
-from langchain_core.prompts import PromptTemplate
 
 from langchain_ollama import ChatOllama
-from langchain_core.messages import HumanMessage
+from langchain_core.messages import HumanMessage, SystemMessage
 
 from configuration.config import AppConfig
-from tools import convert_currency
+from src.currency_converter_tool import convert_currency
 from rag_subgraph import policy_search_tool 
 
 logger = logging.getLogger(__name__)
@@ -44,21 +42,15 @@ def categorize_input_node(state: AssistantState) -> AssistantState:
         temperature=0.0, 
         base_url=AppConfig.OLLAMA_BASE_URL
     )
-    parser = PydanticOutputParser(pydantic_object=InputCategories)
     
-    prompt = PromptTemplate(
-        template="""Analyze the following user input and determine ALL appropriate categories based on the context.\n
-                {format_instructions}\n\n
-                User Input: {input}\n\nIMPORTANT: Return ONLY a valid JSON object!""",
-        input_variables=["input"],
-        partial_variables={"format_instructions": parser.get_format_instructions()}
-    )
+    structured_llm = llm.with_structured_output(InputCategories)
+    prompt_template = """You are a corporate travel compliance assistant. 
+                    Analyze the following user input and determine ALL appropriate categories that apply.
+
+                    User Input: {input}"""
     
     try:
-        raw_response = llm.invoke(prompt.format(input=last_message))
-        content = raw_response.content.replace("```json", "").replace("```", "").strip()
-        
-        parsed_result = parser.parse(content)
+        parsed_result = structured_llm.invoke(prompt_template.format(input=last_message))
         categories = parsed_result.categories
         
         if not categories:
@@ -78,9 +70,22 @@ def agent_reasoning_node(state: AssistantState) -> AssistantState:
     
     # Bind tools directly to the LLM
     llm_with_tools = llm.bind_tools(TOOLS)
+
+    categories = state.get("categories", ["General"])
+    categories_str = ", ".join(categories)
+    
+    system_prompt = SystemMessage(
+        content=(
+            f"You are a corporate travel assistant. "
+            f"The user's request has been categorized as: {categories_str}. "
+            f"Keep this context in mind when deciding which tool to use or how to answer."
+        )
+    )
+    
+    messages_to_pass = [system_prompt] + state["messages"]
     
     # The LLM reads the entire conversation history and decides the next move
-    response = llm_with_tools.invoke(state["messages"])
+    response = llm_with_tools.invoke(messages_to_pass)
     
     # Return the AIMessage (which may contain tool_calls or the final text)
     return {"messages": [response]}
