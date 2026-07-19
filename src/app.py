@@ -44,6 +44,8 @@ with st.sidebar:
         "Load Evaluation Case", 
         list(test_cases_dict.keys())
     )
+
+    run_test_btn = st.button("Run Selected Test Case")
     
     if st.button("Clear Conversation"):
         st.session_state.messages = [
@@ -60,7 +62,7 @@ for message in st.session_state.messages:
 
 prompt_text = None
 
-if selected_test in test_cases_dict:
+if run_test_btn and selected_test in test_cases_dict:
     prompt_text = test_cases_dict[selected_test]
 
 user_query = st.chat_input("Type your question here...")
