@@ -116,6 +116,8 @@ The system currently integrates the following tools:
 
 The knowledge base is built from the corporate travel policy PDF stored in [data/FM-MMR-Corporate-Travel-and-Expense-Policy-4-14.pdf](data/FM-MMR-Corporate-Travel-and-Expense-Policy-4-14.pdf). The PDF is chunked, embedded, and stored locally in Chroma for semantic retrieval.
 
+However, the ingestion pipeline is designed to process an entire directory of documents. It automatically attaches `source_file` metadata to each chunk, ensuring accurate semantic retrieval and traceability even when scaling to a multi-document corpus.
+
 ### Model choice and trade-offs
 
 The project uses a local Llama 3.2 3B model via Ollama, with sentence-transformers embeddings for retrieval. This choice was made for several reasons:
