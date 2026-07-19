@@ -8,6 +8,7 @@ langchain-chroma>=0.1.0
 chromadb>=0.4.22
 sentence-transformers>=2.3.1
 torch>=2.0.0
+torchvision>=0.15.1
 pypdf>=4.0.0
 python-dotenv>=1.0.1
 requests>=2.31.0

@@ -39,7 +39,11 @@ def categorize_input_node(state: AssistantState) -> AssistantState:
     logger.info("[Main Graph] Node 1: Categorizing user input using LLM...")
     last_message = state["messages"][-1].content
     
-    llm = ChatOllama(model=AppConfig.LLM_MODEL_NAME, temperature=0.0, base_url=AppConfig.OLLAMA_BASE_URL)
+    llm = ChatOllama(
+        model=AppConfig.LLM_MODEL_NAME, 
+        temperature=0.0, 
+        base_url=AppConfig.OLLAMA_BASE_URL
+    )
     parser = PydanticOutputParser(pydantic_object=InputCategories)
     
     prompt = PromptTemplate(
@@ -170,3 +174,5 @@ if __name__ == "__main__":
     
     logger.info("--- FINAL AI RESPONSE ---")
     logger.info(response_state["messages"][-1].content)
+
+AGENT = initialize_agent()

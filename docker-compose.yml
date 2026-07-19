@@ -3,17 +3,21 @@ services:
   app:
     build: .
     container_name: agentic_travel_compliance_app
+    command: streamlit run src/app.py --server.port=8501 --server.address=0.0.0.0
     ports:
       - "8501:8501"
     volumes:
       - .:/app
-      - /app/chroma_db
-      - /app/logs
+      - ./chroma_db:/app/chroma_db
+      - ./logs:/app/logs
     environment:
       - PYTHONUNBUFFERED=1
       - OLLAMA_BASE_URL=http://ollama:11434
     depends_on:
-      - ollama
+      ollama:
+        condition: service_started
+      ollama-init:
+        condition: service_completed_successfully
 
   ollama:
     image: ollama/ollama:latest
@@ -22,6 +26,17 @@ services:
       - "11434:11434"
     volumes:
       - ollama_data:/root/.ollama
+  
+  ollama-init:
+    image: ollama/ollama:latest
+    container_name: ollama_init
+    depends_on:
+      - ollama
+    environment:
+      - OLLAMA_HOST=ollama:11434
+    entrypoint: ["/bin/sh", "-c"]
+    command: ["sleep 20 && ollama pull llama3.2:3b"]
 
 volumes:
   ollama_data:
+  chroma_db:
