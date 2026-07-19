@@ -103,13 +103,14 @@ def initialize_vector_db(force_recreate: bool = False) -> Chroma:
 
     return vector_db
 
+DB = initialize_vector_db()
+
 
 def get_retriever():
     """
     Returns a retriever object configured for similarity search.
     """
-    db = initialize_vector_db(force_recreate=False)
-    return db.as_retriever(
+    return DB.as_retriever(
         search_type="similarity",
         search_kwargs={"k": AppConfig.RETRIEVER_K}
     )
