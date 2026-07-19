@@ -2,12 +2,12 @@ import streamlit as st
 import json
 import os
 import uuid
-from langchain_core.messages import HumanMessage, AIMessage
+from langchain_core.messages import HumanMessage
+from utils.logging import setup_logger
+setup_logger()
 
 from agent import AGENT
 
-from utils.logging import setup_logger
-setup_logger()
 
 st.set_page_config(
     page_title="Corporate Travel Compliance Assistant",
