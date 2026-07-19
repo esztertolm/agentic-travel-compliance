@@ -11,7 +11,7 @@ from langchain_ollama import ChatOllama
 from langchain_core.messages import HumanMessage, SystemMessage
 
 from configuration.config import AppConfig
-from src.currency_converter_tool import convert_currency
+from currency_converter_tool import convert_currency
 from rag_subgraph import policy_search_tool 
 
 logger = logging.getLogger(__name__)
