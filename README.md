@@ -278,11 +278,19 @@ This is the recommended deployment path.
    docker compose up --build
    ```
 
+   First-time startup can take up to 15 minutes. This delay is expected because the initialization container automatically pulls the LLM model (llama3.2:3b) into the Ollama volume and the docker builds the image.
+
 3. Open the application in your browser:
 
    - Streamlit UI: http://localhost:8501
 
 4. The initialization service will pull the model automatically. The first startup may take a few minutes.
+
+5. After you are finished, you can stop the containers:
+
+   ```bash
+   docker compose down
+   ```
 
 ### Notes for reproducibility
 
