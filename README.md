@@ -116,6 +116,8 @@ The system currently integrates the following tools:
 
 The knowledge base is built from the corporate travel policy PDF stored in [data/FM-MMR-Corporate-Travel-and-Expense-Policy-4-14.pdf](data/FM-MMR-Corporate-Travel-and-Expense-Policy-4-14.pdf). The PDF is chunked, embedded, and stored locally in Chroma for semantic retrieval.
 
+However, the ingestion pipeline is designed to process an entire directory of documents. It automatically attaches `source_file` metadata to each chunk, ensuring accurate semantic retrieval and traceability even when scaling to a multi-document corpus.
+
 ### Model choice and trade-offs
 
 The project uses a local Llama 3.2 3B model via Ollama, with sentence-transformers embeddings for retrieval. This choice was made for several reasons:
@@ -206,6 +208,12 @@ From the observed behavior, the system performs well on straightforward retrieva
 
 The load-test script in [tests/load_tests.py](tests/load_tests.py) was executed with 50 sequential requests to emulate a realistic burst of repeated user activity. The results indicate that the system can complete the workload successfully, but it does so with relatively high latency.
 
+The command to run the load test after the docker containers are ready:
+
+```bash
+docker-compose exec app python tests/load_tests.py
+```
+
 Observed metrics:
 
 - Total requests: 50
@@ -237,6 +245,8 @@ To improve both the output quality and system performance in a production enviro
 - **Hardware Acceleration:** Deploying the application on a dedicated, high-end GPU. This would drastically reduce the 30+ second average inference latency currently observed on the local setup.
 - **Refined Chunking Strategy:** Improving the RAG ingestion pipeline by implementing semantic chunking. Ensuring that paragraph boundaries or logical policy sections are kept intact (rather than using aggressive text splitters) would provide the LLM with much cleaner context.
 - **Semantic Caching:** Introducing a caching layer to serve instant answers for highly repetitive, standard policy questions without triggering the full LLM workflow.
+- **Microservice Decoupling (API vs. UI):** The current prototype tightly couples the LangGraph orchestrator with the Streamlit frontend. This monolithic approach was chosen for the PoC to easily stream intermediate graph execution steps directly to the UI. For a production deployment, the reasoning engine should be extracted into a dedicated standalone API (e.g., FastAPI). This separation of concerns will allow independent scaling of the inference backend and the presentation layer.
+- **Content-Based Ingestion Updates (Hashing):** The current vector database initialization script relies strictly on the document's filename (`source_file` metadata) to skip already processed PDFs. If a policy document is modified but the filename remains unchanged, the system will ignore the update. A more robust data ingestion pipeline would calculate a cryptographic hash (e.g., SHA-256) of the file's binary content and store it as metadata. This would enable true delta updates, allowing the system to re-chunk and upsert only the documents where the actual content has changed.
 
 ---
 
@@ -268,11 +278,19 @@ This is the recommended deployment path.
    docker compose up --build
    ```
 
+   First-time startup can take up to 15 minutes. This delay is expected because the initialization container automatically pulls the LLM model (llama3.2:3b) into the Ollama volume and the docker builds the image.
+
 3. Open the application in your browser:
 
    - Streamlit UI: http://localhost:8501
 
 4. The initialization service will pull the model automatically. The first startup may take a few minutes.
+
+5. After you are finished, you can stop the containers:
+
+   ```bash
+   docker compose down
+   ```
 
 ### Notes for reproducibility
 
