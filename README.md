@@ -4,7 +4,7 @@
 
 This project implements an agentic, retrieval-augmented assistant for corporate travel compliance and expense support. The system helps employees answer policy-related questions, check reimbursement rules, and perform currency conversions through a modular LangGraph workflow powered by a local LLM and a vector database.
 
-This project is a production-oriented implementation combining reasoning, tool use, and retrieval. It is built around a Streamlit frontend, a LangGraph orchestration layer, a dedicated RAG subgraph, and a local Ollama-based LLM runtime.
+This project is an advanced agentic prototype combining reasoning, tool use, and retrieval. It is built around a Streamlit frontend, a LangGraph orchestration layer, a dedicated RAG subgraph, and a local Ollama-based LLM runtime.
 
 ---
 
